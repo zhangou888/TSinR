@@ -1,0 +1,71 @@
+---
+title: "R01 Example Graphics"
+author: "Ou Zhang"
+date: "4/22/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-package, include = FALSE}
+packages <- c("tidyverse","tseries","fpp3","fpp","forecast")
+packages <- lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+        install.packages(x)
+        library(x, character.only = TRUE)
+    }
+})
+
+library(fpp)
+
+```
+
+The goal is to visualize what is time-series data.
+
+`fpp` package is a collection of the data for "Forecasting: principles and practice".
+
+[Forecasting: Principles and Practice](https://otexts.com/fpp3/) is a great textbook written by Rob J Hyndman and George Athanasopoulos.
+
+* Data -`melsyd` is the Total weekly air passenger numbers on Ansett airline flights between
+Melbourne and Sydney, 1987–1992.
+
+* Data -`a10` is the Monthly anti-diabetic drug sales in Australia from 1992 to 2008.
+
+* Data -`fuel` is the Fuel economy data on 2009 vehicles in the US.
+
+```{r simple forecast}
+
+# USE data from `fpp`.
+# Data- melsyd is the Total weekly air passenger numbers on Ansett airline flights between
+# Melbourne and Sydney, 1987–1992.
+plot(melsyd[,"Economy.Class"],
+     main = "Economy class passengers: Melbourne-Sydney",
+     xlab = "Year", ylab = "Thousands")
+
+# Monthly anti-diabetic drug sales in Australia from 1992 to 2008
+plot(a10, ylab = "$ million", xlab = "Antidiabetic drug sales")
+
+# create season plot 
+seasonplot(a10, ylab = "$ million", xlab = "year",
+           main="Seasonal plot: antidiabetic drug sales",
+           year.labels=TRUE, year.labels.left=TRUE, col=1:20, pch=19)
+
+# month plot
+monthplot(a10,ylab="$ million", xlab="Year", xaxt="n",
+          main="seasonal deviation plot: antidiabetic drug sales")
+axis(1, at=1:12, labels=month.abb,cex=0.8) # adding x-label
+
+# explore the relationship between mpg and carborn footprint.
+# 'Jitter’ function (Add Noise) to Numbers
+# Add a small amount of noise to a numeric vector.
+plot(jitter(fuel[,5]), jitter(fuel[,8]), xlab="City mpg", ylab="Carbon footprint")
+
+# check the correlation between these variables-"Litres"  "City"    "Highway" "Carbon" 
+pairs(fuel[,-c(1:2,4,7)],pch=19)
+
+
+```
+
+

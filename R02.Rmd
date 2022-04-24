@@ -1,0 +1,79 @@
+---
+title: "R02 Univariate, Bivariate, ACF"
+author: "Ou Zhang"
+date: "4/22/2022"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-package, include = FALSE}
+packages <- c("tidyverse","tseries","fpp3","fpp","forecast",
+              "corrplot","PerformanceAnalytics")
+packages <- lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+        install.packages(x)
+        library(x, character.only = TRUE)
+    }
+})
+
+library(fpp)
+
+```
+
+`corrplot` is the r-package for Visualization of a Correlation Matrix.
+
+`PerformanceAnalytics` is the r-package for Econometric Tools for Performance and Risk Analysis.
+
+
+
+```{r univariate}
+# data frame `fuel`
+fuel
+
+# check basic variables
+names(fuel)
+nrow(fuel2)
+
+# check the Litre variables
+fuel$Litres
+
+# subset dataset (displacement <2 liters)
+fuel2 <- fuel %>% 
+    filter(Litres < 2)
+
+fuel2
+
+summary(fuel2[,"Carbon"])
+
+sd(fuel2[,"Carbon"])
+
+ausbeer
+
+beer2 <- window(ausbeer, start=1992, end=2006-.1)
+
+
+# Correlation vs Autocorrelation
+# install.package("corrplot")
+# install.packages("PerformanceAnalytics)
+
+# lag.plot shows the correlation pattern for different lag moments.
+lag.plot(beer2, lags=9, do.lines=FALSE)
+
+# Correlation VS.Autocorrelation
+# long vertical line means large correlation on certain lags.
+Acf(beer2)
+
+# another example
+set.seed(30)
+x <- ts(rnorm(50))
+x
+plot(x, main="White noise")
+
+# the interval range is (+/-2 )/ sqrt(50)
+Acf(x)
+
+
+```
+

@@ -1,0 +1,77 @@
+---
+title: "R04 Transformation and Adjustments"
+author: "Ou Zhang"
+date: "4/23/2022"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-package, include = FALSE}
+packages <- c("tidyverse","tseries","fpp3","fpp","forecast",
+              "corrplot","PerformanceAnalytics")
+packages <- lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+        install.packages(x)
+        library(x, character.only = TRUE)
+    }
+})
+
+library(fpp)
+
+```
+
+# Transformations and Adjusting History
+
+## Mathematical Transformations
+ - Inconsistent variation across level of the series
+ - Log
+ - Box-Cox Transforms
+
+The data the example use is `elec`- electricity demand 
+
+```{r math transform}
+# Plot of Raw
+plot(elec, ylab="Raw electricity demand",
+     xlab="Year", main="Raw Monthly electricity demand")
+title(main="Raw", line=-1)
+
+# Plot of Log
+plot(log(elec), ylab="Transformed electricity demand",
+     xlab="Year", main="Transformed monthly electricity demand")
+title(main="Log", line=-1)
+
+# The BoxCox.lambda() function will choose a value of lambda for you.
+lambda <- BoxCox.lambda(elec) #.27
+plot(BoxCox(elec, lambda))
+title(main="Box-Cox", line=-1)
+
+```
+ 
+## Calendar Adjustment (Days per Month)
+
+```{r calendar}
+monthdays <- rep(c(31,28,31,30,31,30,31,31,30,31,30,31), 14)
+monthdays[26 + (4*12)*(0:2)] <- 29
+par(mfrow = c(2,1))
+
+# data milk is 14-year monthly milk production per cow  
+plot(milk, main="Monthly milk production per cow",
+     ylab = "Pounds", xlab = "Years")
+
+# Normalized by monthdays so that it is not influenced by different days per different month.
+plot(milk/monthdays, main="Average milk production per cow per day",
+     ylab = "Pounds", xlab = "Years")
+
+
+```
+
+
+## Population Adjustments (Days/1000, PMPM$-per member per month)
+
+
+## Inflation Adjustments (Inflation-Adjusted Return)
+

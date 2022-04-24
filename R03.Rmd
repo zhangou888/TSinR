@@ -1,0 +1,88 @@
+---
+title: "R03 Average, Naive, Seasonal Naive and Drift Methods"
+author: "Ou Zhang"
+date: "4/22/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-package, include = FALSE}
+packages <- c("tidyverse","tseries","fpp3","fpp","forecast",
+              "corrplot","PerformanceAnalytics")
+packages <- lapply(packages, FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+        install.packages(x)
+        library(x, character.only = TRUE)
+    }
+})
+
+library(fpp)
+
+```
+
+ 1. **Average method** is essentially taking the average of the series across time(T) all of the different points across the time dimension where `Y` is the actual dimension the time series and `H` is the forecast on the horizon.
+ 
+ 2. **Naive method** is only appropriate for time series data so forecaster simply set to the value of the last observation so that is the forecast and future values are set basically the `Y` and `T` where `T` is the most current or last observed value and this method actually works well in  economic and financial time series. 
+ 
+> These two methods above are benchmark methods essentially. So when a new method comes along, it is typically put up against and see how well it responds to several different benchmarks. So these two methods above are called **benchmark methods of time series**.
+
+ 3. **Seasonal Naive method** is similar to Naive method. In this case, we set the forecast to be equal to the last observed value at the same season of the year and so the forecast for the current plus the season where `H` is the **period of the season seasonality** of the data. 
+ 
+ 4. **Drift method** utilizes this `rwf` function. it's the variation of the naive method, but it allows a dampening or basically a drift which is a decrease over time. So, it's set to be the average change in the historical data. Basically, it drifts off from the time `Y` sub `T` the last observed value.
+
+```{r method summary, eval=FALSE}
+
+# Average method
+# meanf(y,h)
+# y contains the time series
+# h is the forecast horizon
+
+# Naive Method
+# naive(y, h)
+# Alternative RWF = Random walk Forecast = ARIMA(0,1,0)
+
+
+# Seasonal Naive Method
+# snaive(y, h) # H is the period of the season.
+
+
+# Drift Method
+# rwf(y, h, drift = TRUE)
+
+
+```
+
+
+```{r example}
+
+beer2 <- window(ausbeer, start=1992, end=2006-.1)
+
+beerfit1 <- meanf(beer2, h=11)
+beerfit2 <- naive(beer2, h=11)
+beerfit3 <- snaive(beer2, h=11)
+
+plot(beerfit1, plot.conf=FALSE,
+    main="Forecasts for quarterly beer production")
+lines(beerfit2$mean, col=2)
+lines(beerfit3$mean, col=3)
+legend("topright", lty=1, col=c(4,2,3),
+       legend=c("Mean method", "Naive method", "Season naive method"))
+
+# stock data-dow jones
+dj2 <- window(dj,end=250)
+
+plot(dj2, main="Dow Jones Index (daily ending 15 July 94)",
+     ylab="", xlab="Day", xlim=c(2,290))
+lines(meanf(dj2,h=42)$mean, col=4)
+lines(rwf(dj2,h=42)$mean, col=2)
+lines(rwf(dj2,drift=TRUE,h=42)$mean, col=3)
+legend("topleft", lty=1, col=c(4,2,3),
+       legend=c("Mean method","Naive method", "Drift method"))
+
+
+```
+
+
