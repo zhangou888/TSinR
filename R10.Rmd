@@ -1,0 +1,63 @@
+---
+title: "X11 Decomposition"
+author: "Ou Zhang"
+date: "4/24/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# X11 Decomposition
+
+* Originated - US Census Bureau and Statistics Canada
+* Based on classical decomposition, but includes many extra steps and features
+* In particular, trend-cycle estimates are available for all observations including the end points
+* seasonal component is allowed to vary slowly over time
+* also has some sophisticated methods for handling trading day variation, holiday effects and the effects of known predictors
+* both additive and multiplicative decomposition
+* process is entirely automatic 
+* highly robust to outliers and level shifts in the time series.
+
+
+
+```{r load-package, include = FALSE}
+packages <- c(
+  "tidyverse", "tseries", "fpp3", "fpp","fpp2", "forecast",
+  "corrplot", "PerformanceAnalytics","seasonal")
+packages <- lapply(packages, FUN = function(x) {
+  if (!require(x, character.only = TRUE)) {
+    install.packages(x)
+    library(x, character.only = TRUE)
+  }
+})
+
+library(fpp2)
+
+```
+Somehow, the `X11` keyword on the command `seas` from the `seasonal` package doesent' work. 
+It gives an error meesage below:
+
+> Error in x13_import(iofile, x = list[["x"]], na.action = na.action, out = out) : no output has been generated. 
+
+For the illustration purpose, I comment out `seas` line below.
+
+
+
+```{r example}
+
+library(seasonal)
+
+# decompose command
+elecequip %>% 
+    decompose(type = "multiplicative") %>% 
+    autoplot() + xlab("Year") +
+    ggtitle("Classicial equipment index")
+
+# x11
+# elecequip %>% seas(elecequip, x11="") -> fit
+# autoplot(fit) + ggtitle("X11 decomposition of electrical equipment index")
+
+```
+

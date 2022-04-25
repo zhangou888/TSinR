@@ -1,0 +1,124 @@
+---
+title: "Forecast Accuracy"
+author: "Ou Zhang"
+date: "4/24/2022"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Forecast Error Statistics
+
+## Forecast Error
+
+$$e_{i} = y_{i} - \hat{y}_{i}$$
+
+## Scale Dependent Measures of Error
+
+<center>
+
+Mean absolute error: MAE = $mean(|e_{i}|)$    
+
+
+Root mean square error: RMSE = $\sqrt{mean(e^2_{i})}$
+
+</center>
+
+
+## Scale Independent Error, Percentage Errors
+
+$$ p_{i} = 100\times e_{i}/y_{i}$$
+<center>
+Mean absolute percentage error: MAPE = $mean(|p_{i}|)$
+</center>
+
+
+## Scale Independent Error, Scaled Errors (Hyndman and Koehler 2006)
+
+### Mean Absolute Scaled Error - MASE
+
+
+```{r load-package, include = FALSE}
+packages <- c(
+  "tidyverse", "tseries", "fpp3", "fpp", "forecast",
+  "corrplot", "PerformanceAnalytics"
+)
+packages <- lapply(packages, FUN = function(x) {
+  if (!require(x, character.only = TRUE)) {
+    install.packages(x)
+    library(x, character.only = TRUE)
+  }
+})
+
+library(fpp)
+```
+
+We use example data from R02.rmd, and use `beer2` as the training set.
+Then, we create a new dataset-`beer3` as the test set to check the forecast accuracy.
+
+Usually, we compare **RMSE**, **MAPE**, and **MASE** across different methods' accuracy coefficient.
+
+
+```{r seasonal example, warning=FALSE}
+
+# Example from R02.
+
+# Use beer2 as a training set
+beer2 <- window(ausbeer, start = 1992, end = 2006 - .1)
+
+beerfit1 <- meanf(beer2, h = 11)
+beerfit2 <- naive(beer2, h = 11)
+beerfit3 <- snaive(beer2, h = 11)
+
+plot(beerfit1,
+  plot.conf = FALSE,
+  main = "Forecasts for quarterly beer production"
+)
+lines(beerfit2$mean, col = 2)
+lines(beerfit3$mean, col = 3)
+legend("topright",
+  lty = 1, col = c(4, 2, 3),
+  legend = c("Mean method", "Naive method", "Season naive method")
+)
+
+
+# accuracy
+# beer3 is used as a test set.
+beer3 <- window(ausbeer, start = 2006)
+
+accuracy(beerfit1, beer3)
+accuracy(beerfit2, beer3)
+accuracy(beerfit3, beer3)
+```
+
+Let's look at some non-seasonal example:
+
+```{r nonseasonal example, warning = FALSE}
+
+
+# stock data-dow jones
+dj2 <- window(dj, end = 250)
+
+plot(dj2,
+  main = "Dow Jones Index (daily ending 15 July 94)",
+  ylab = "", xlab = "Day", xlim = c(2, 290)
+)
+lines(meanf(dj2, h = 42)$mean, col = 4)
+lines(rwf(dj2, h = 42)$mean, col = 2)
+lines(rwf(dj2, drift = TRUE, h = 42)$mean, col = 3)
+legend("topleft",
+  lty = 1, col = c(4, 2, 3),
+  legend = c("Mean method", "Naive method", "Drift method")
+)
+
+# create test dataset
+
+dj3 <- window(dj, start = 251)
+accuracy(meanf(dj2, h = 42), dj3)
+accuracy(rwf(dj2, h = 42), dj3)
+accuracy(rwf(dj2, drift = TRUE, h = 42), dj3)
+```

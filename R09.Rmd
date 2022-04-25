@@ -1,0 +1,55 @@
+---
+title: "Classical Decomposition"
+author: "Ou Zhang"
+date: "4/24/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Time Series Classical Decomposition
+
+## Additive Decomposition
+
+* Estimate Trend, $T_{t}$
+* Calculate the Detrended Series $Y_{t} - T_{t}$
+* Estimate Seasonal Components $S_{t}$
+* Remainder $R_{t} = y_{t} - T_{t} - S_{t}$
+
+## Multiplicative
+
+* Estimate Trend, $T_{t}$
+* Calculate the Detrended Series $Y_{t}/T_{t}$
+* Estimate Seasonal Components $S_{t}$
+* Remainder $R_{t} = y_{t}/(T_{t} \times S_{t})$ 
+
+
+```{r load-package, include = FALSE}
+packages <- c(
+  "tidyverse", "tseries", "fpp3", "fpp","fpp2", "forecast",
+  "corrplot", "PerformanceAnalytics"
+)
+packages <- lapply(packages, FUN = function(x) {
+  if (!require(x, character.only = TRUE)) {
+    install.packages(x)
+    library(x, character.only = TRUE)
+  }
+})
+
+library(fpp2)
+```
+
+
+```{r decomposition example}
+
+# decompose command
+elecequip %>% 
+    decompose(type = "multiplicative") %>% 
+    autoplot() + xlab("Year") +
+    ggtitle("Classicial equipment index")
+
+
+```
+

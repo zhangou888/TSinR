@@ -1,0 +1,73 @@
+---
+title: "Moving Averages and Centered Moving Averages"
+author: "Ou Zhang"
+date: "4/24/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-package, include = FALSE}
+packages <- c(
+  "tidyverse", "tseries", "fpp3", "fpp","fpp2", "forecast",
+  "corrplot", "PerformanceAnalytics"
+)
+packages <- lapply(packages, FUN = function(x) {
+  if (!require(x, character.only = TRUE)) {
+    install.packages(x)
+    library(x, character.only = TRUE)
+  }
+})
+
+library(fpp2)
+```
+
+Our goal is to smooth out the time series.
+
+# Moving Average Smoothing
+
+* Moving Average of order `m`  
+
+$$\hat{T_{t}} = \frac{1}{m} \sum_{j=-k}^{k} y_{t+1}$$
+* Weighted Moving Averages
+
+$$\hat{T_{t}} = \frac{1}{m} \sum_{j=-k}^{k} a_{j} \times y_{t+1}$$
+
+
+```{r example, warning=FALSE}
+
+autoplot(elecsales) + xlab("Year") + ylab("Gwh") +
+    ggtitle("Annual electricity sales: South Australia")
+
+    ma(elecsales, 5)
+    
+# Plot trend  5-ma ON the top of the real data plot    
+autoplot(elecsales, series = "Data") + 
+  autolayer(ma(elecsales,5), series = "5-MA") +
+  xlab("Year") + ylab("Gwh") +
+  ggtitle("Annual electricity sales: South Australia") +
+  scale_colour_manual(values=c("Data" = "grey50", "5-MA" = "red"),
+                      breaks = c("Data", "5-MA"))
+
+
+beer2 <- window(ausbeer, start = 1992)
+
+# create 4 moving average
+ma4 <- ma(beer, order = 4, centre = FALSE)
+
+# Create a 2nd moving average on the 4 moving average (2 MAs over previous 4 MAs)
+ma2x4 <- ma(beer2, order=4, centre = TRUE)
+
+
+autoplot(elecequip, series = "Data") + 
+    autolayer(ma(elecequip,12), series = "12-MA") +
+    xlab("Year") + ylab("New orders index") +
+    ggtitle("Electrical equipment manufacturing (Euro area)") +
+    scale_colour_manual(values=c("Data" = "grey", "12-MA" = "red"),
+                        breaks = c("Data", "12-MA"))
+
+
+```
+

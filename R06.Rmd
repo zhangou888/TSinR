@@ -1,0 +1,82 @@
+---
+title: "Residual Diagnositcs"
+author: "Ou Zhang"
+date: "4/24/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Forecast Error Statistics
+
+## Forecast Error = Residual
+$$e_{i} = y_{i} - \hat{y_{i}}$$
+
+## Essential Forecasting Methods
+$$e_{i}~ i.i.d.(0,)$$
+* Residual are uncorrelated
+* Residuals have zero mean
+
+## Essential + Useful
+$$e_{i}~i.i.d.N(0,\sigma^2)$$
+* Residuals have constant variance
+* REsiduals are Normally distributed
+
+## Random Walk, Naive Method
+$$e_{t} = y_{t} - \hat{y_{t}} = y_{t} - y_{t-1}$$
+
+
+```{r load-package, include = FALSE}
+packages <- c(
+  "tidyverse", "tseries", "fpp3", "fpp", "forecast",
+  "corrplot", "PerformanceAnalytics"
+)
+packages <- lapply(packages, FUN = function(x) {
+  if (!require(x, character.only = TRUE)) {
+    install.packages(x)
+    library(x, character.only = TRUE)
+  }
+})
+
+library(fpp)
+```
+
+
+```{r example}
+
+# Dow Jones Index - Random Walk
+dj2 <- window(dj, end = 250)
+
+# plot time series data
+plot(dj2,
+  main = "Dow Jones Index (daily ending 15 July 94)",
+  ylab = "", xlab = "Day", xlim = c(2, 290))
+
+# obtain residual
+res <- residuals(naive(dj2))
+
+# plot residuals
+plot(res, main = "Residuals from naive method",
+  ylab = "", xlab = "Day")
+
+# Check ACF
+Acf(res, main="ACF of residuals")
+
+# Check normality
+hist(res, nclass="FD", main="Histogram of residuals")
+
+### Box-Pierce and Ljung-Box Tests  ###
+## for examining the null hypothesis of independence in a given time series. 
+## Significant p-value means there are autocorrelations exist.
+# lag=h for nonseasonal and h=2m for seasonal, 
+# where m is the period of sesaonality and fitdf = K (lag)
+Box.test(res, lag=10, fitdf = 0)
+
+Box.test(res, lag=10, fitdf=0, type="Lj")
+
+
+```
+
